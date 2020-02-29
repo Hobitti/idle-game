@@ -10,7 +10,7 @@ var build =[
 [1000,5,5,0,0],
 [100000,3,100,0,0],
 [10000000,2,5000,0,0],
-[1000000000,1,20000,0,0]
+[100000000,1,20000,0,0]
 ];
 	
 play();
@@ -25,7 +25,7 @@ function play () {           //  create a loop function
 	show_pop=Math.floor(pop);
 	var show_money=Math.floor(money);
 	document.getElementById("1").innerHTML = show_money+"$ "+gps+"$/sek";
-	document.getElementById("pop").innerHTML = "(slave) population:"+show_pop;
+	document.getElementById("pop").innerHTML = "Population(slaves):"+show_pop;
 	play()                     //  ..  setTimeout()
    }, 25)
    return true;
@@ -42,7 +42,7 @@ function upgarde(what) {// päivittää rakennuksen
 		calculate();
 	}
 	else {
-		alert("virhe liian vähän rahaa");
+		alert("No money for that");
 	}
 	return true;
 }
@@ -54,12 +54,12 @@ function calculate() {//lasekkee tuotannon runnataan vain kus sen pitäisi muutt
 	var hnimi=i+"_hinta"
 	var mult_gps=1;
 	while(-1!=i) {
-		var cost=build[i][0] * ( 2 * build[i][3]);
+		var cost=build[i][0] * ( 2 * build[i][3] +1);
 		max=build[i][1]*build[i][3];
 		gps=gps + build[i][2] * build[i][4] * mult_gps;
 		if(build[i][4]==null || build[i][4]=="") build[i][4]=0;
 		document.getElementById(nimi).innerHTML = "Workers:" + build[i][4]+"/"+max;
-		document.getElementById(hnimi).innerHTML = "Hinta:" + cost;
+		document.getElementById(hnimi).innerHTML = "Price:" + cost;
 		i--;
 		nimi=i+"_pop";
 		hnimi=i+"_hinta";
@@ -69,26 +69,45 @@ function calculate() {//lasekkee tuotannon runnataan vain kus sen pitäisi muutt
 function lisaa(what){//lisää työläisen rakennukseen.
 	var nimi=what+"_pop";
 	var max=build[what][1]*build[what][3];
-	if(pop > 1 && build[what][4] < max) {
-		build[what][4]++;
-		document.getElementById(nimi).innerHTML = "Workers:"+ build[what][4]+"/"+max;
-		pop--;
-		calculate();
-	} 
-	else if(build[what][4] == build[what][1]) alert("No space for new workers");
-	else alert("ei tarpeeksi polulaatiota");
-	
+	if (event.shiftKey && build[what][4] < max) {
+		pop_need= max - build[what][4];
+		if(pop_need <= pop) {
+			build[what][4]=max;
+			pop -= pop - pop_need;
+		}
+		else  {
+			build[what][4]+=pop;
+			pop=0;
+		}
+	}
+	else {
+		if(pop > 1 && build[what][4] < max) {
+			build[what][4]++;
+			pop--;
+		} 
+		else if(build[what][4] == build[what][1]) alert("No space for new workers");
+		else alert("ei tarpeeksi polulaatiota");
+	}
+	document.getElementById(nimi).innerHTML = "Workers:"+ build[what][4]+"/"+max;
+	calculate();
 }
-function poista(what){
+function poista(what, event){
 	var nimi=what+"_pop";
 	var max=build[what][1]*build[what][3];
-	if(build[what][4]>0) {
-		build[what][4]--;
-		document.getElementById(nimi).innerHTML = "Workers:" + build[what][4]+"/"+max;
-		pop++;
-		calculate();
+	if (event.shiftKey) {
+		pop+=build[what][4];
+		build[what][4]=0;
+		
 	}
-	else alert("ei populaatiota töissä");
+	else {	
+		if(build[what][4]>0) {
+			build[what][4]--;
+			pop++;
+		}
+		else alert("ei populaatiota töissä");
+	}
+	document.getElementById(nimi).innerHTML = "Workers:" + build[what][4]+"/"+max;
+	calculate();
 	
 }
 function save() {
