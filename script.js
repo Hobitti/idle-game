@@ -4,6 +4,7 @@ var money=100;
 var gps=0;
 var what=0;
 var pop=10;
+var time=0;
 var build =[
 //hinta,max workers,nyk taso, nyk tyolaiset
 [10,10,1,1,0],
@@ -15,25 +16,36 @@ var build =[
 	
 play();
 calculate();
-load();
 function play () {           //  create a loop function
 
    setTimeout(function () {    //  call a 3s setTimeout when the loop is called
     var net = gps / 40;
+	time++;
 	var pops = 0.025;
+	
 	money=money + net;
-	pop=pop+pops;
+	pop+=pops;
 	show_pop=Math.floor(pop);
 	var show_money=Math.floor(money);
+	
 	document.getElementById("1").innerHTML = show_money+"$ "+gps+"$/sek";
 	document.getElementById("pop").innerHTML = "Population(slaves):"+show_pop;
+	
+	if(time == 12000) {
+		time=0;	
+		save();
+		console.log("saved");
+   }
 	play()                     //  ..  setTimeout()
    }, 25)
    return true;
 }
 function upgarde(what) {// päivittää rakennuksen
-	var cost=build[what][0]*(2*build[what][3]);
-	console.log(cost);
+var cost=0;
+	
+	if(build[what][3] == 0) cost=build[what][0] * 2 * (build[what][3] + 1);
+	else  cost=build[what][0]*2*build[what][3];
+	
 	if(money >=cost) {//tarkistaa että rahaa on tarpeeksi
 		money=money-cost;
 		build[what][3]++;
@@ -53,12 +65,17 @@ function calculate() {//lasekkee tuotannon runnataan vain kus sen pitäisi muutt
 	var i=4;
 	var nimi=i+"_pop";
 	var hnimi=i+"_hinta"
+	var cost=0;
 	var mult_gps=1;
 	while(-1!=i) {
-		var cost=build[i][0] * ( 2 * build[i][3] +1);
+		console.log(build[i][3])
+		if(build[i][3] == 0)  cost= build[i][0] * 2 * (build[i][3] + 1);
+		else  cost= build[i][0] * 2 * build[i][3];
+		
 		max=build[i][1]*build[i][3];
 		gps=gps + build[i][2] * build[i][4] * mult_gps;
 		if(build[i][4]==null || build[i][4]=="") build[i][4]=0;
+		
 		document.getElementById(nimi).innerHTML = "Workers:" + build[i][4]+"/"+max;
 		document.getElementById(hnimi).innerHTML = "Price:" + cost;
 		i--;
@@ -118,12 +135,12 @@ function save() {
 		setCookie("rakennus"+i,build[i][3]);
 		setCookie("rakennus_tyolais"+i,build[i][4]);
 		setCookie("rakennus_max_tyolaiset"+i,build[i][1]);
+		setCookie("rakennus_hinta"+i,build[i][0]);
 		i++;
 	}
 	setCookie("money",money);
 	setCookie("pop",pop);
 	setCookie("time", d.getTime());
-	console.log("yeet");
 }
 
 function load() {
@@ -132,6 +149,7 @@ function load() {
 			build[i][3]=getCookie("rakennus"+i);
 			build[i][4]=getCookie("rakennus_tyolais"+i);
 			build[i][1]=getCookie("rakennus_max_tyolaiset"+i);
+			build[i][0]=getCookie("rakennus_hinta"+i);
 			i++;
 		}
 		money=parseInt(getCookie("money"))
