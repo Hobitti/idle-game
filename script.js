@@ -15,6 +15,7 @@ var build =[
 	
 play();
 calculate();
+load();
 function play () {           //  create a loop function
 
    setTimeout(function () {    //  call a 3s setTimeout when the loop is called
@@ -76,8 +77,8 @@ function lisaa(what){//lisää työläisen rakennukseen.
 			pop -= pop - pop_need;
 		}
 		else  {
-			build[what][4]+=pop;
-			pop=0;
+			build[what][4]+=Math.floor(pop);
+			pop-=Math.floor(pop);
 		}
 	}
 	else {
@@ -86,7 +87,7 @@ function lisaa(what){//lisää työläisen rakennukseen.
 			pop--;
 		} 
 		else if(build[what][4] == build[what][1]) alert("No space for new workers");
-		else alert("ei tarpeeksi polulaatiota");
+		else alert("Not enought popultaion");
 	}
 	document.getElementById(nimi).innerHTML = "Workers:"+ build[what][4]+"/"+max;
 	calculate();
@@ -104,7 +105,7 @@ function poista(what, event){
 			build[what][4]--;
 			pop++;
 		}
-		else alert("ei populaatiota töissä");
+		else alert("No one works here");
 	}
 	document.getElementById(nimi).innerHTML = "Workers:" + build[what][4]+"/"+max;
 	calculate();
